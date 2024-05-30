@@ -3,14 +3,12 @@ const axios = require('axios');
 // Dados a serem enviados no corpo da solicitação
 const dados = {
   nome: 'Ricardo',
-  data: '2023-05-31',
-  pressao_sist: 120,
-  pressao_diast: 80,
-  bpm: 70
+  data: '2023-07-31',
+
 };
 
 // Fazendo a solicitação POST
-axios.post('http://localhost:5000/api/registos', dados)
+axios.post('http://localhost:5000/api/notificacoes', dados)
   .then(response => {
     console.log('Resposta:', response.data);
   })

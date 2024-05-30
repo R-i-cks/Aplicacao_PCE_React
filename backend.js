@@ -1,7 +1,6 @@
 var express = require("express");
 const connectDB = require('./db');
 var router = express.Router();
-// var axios = require('axios');
 
 
 
@@ -15,6 +14,7 @@ app.use(express.json({ extended: false }));
 
 // Definir Rotas
 app.use('/api/registos', require('./rotas/registos'));
+app.use('/api/notificacoes', require('./rotas/notificacoes'));
 
 const PORT = process.env.PORT || 5000;
 
