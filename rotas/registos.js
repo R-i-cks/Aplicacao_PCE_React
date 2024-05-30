@@ -3,7 +3,7 @@ const router = express.Router();
 const Registo = require('../modelos/registo');
 
 // Rota para obter todos os registos
-router.get('/registos', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const registos = await Registo.find();
         res.json(registos);
@@ -14,11 +14,11 @@ router.get('/registos', async (req, res) => {
 });
 
 // Rota para criar um novo registo
-router.post('/registos', async (req, res) => {
-    const { nome, data, pr_s, pr_d, bpm } = req.body;
+router.post('/', async (req, res) => {
+    const { nome, data, pressao_sist, pressao_diast, bpm } = req.body;
 
     try {
-        let registo = new Registo({ nome, data, pr_s, pr_d, bpm });
+        let registo = new Registo({nome, data, pressao_sist, pressao_diast, bpm });
         await registo.save();
         res.json(registo);
     } catch (err) {

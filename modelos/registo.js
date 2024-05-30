@@ -24,4 +24,4 @@ const RegistoSchema = new mongoose.Schema({
 
 });
 
-module.exports = mongoose.model('registo', RegistoSchema);
+module.exports = mongoose.model('Registo', RegistoSchema);
