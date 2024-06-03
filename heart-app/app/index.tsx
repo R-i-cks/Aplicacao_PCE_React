@@ -1,7 +1,9 @@
 import React from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
+import { Link } from "expo-router";
 
-const Flex = () => {
+
+export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
@@ -9,19 +11,32 @@ const Flex = () => {
       </View>
 
       <View style={styles.buttonContainer}>
+
+      <Link href="/add_measure" asChild>
         <Button
           title="Add measure"
         />
+      </Link>
+
+      <Link href="/history" asChild>
         <Button
           title="History"
         />
+      </Link>
+
+      <Link href="/notifications" asChild>
         <Button
           title="Notifications"
         />
+      </Link>
+      
       </View>
     </View>
   );
-};
+}
+
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -43,4 +58,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Flex;
