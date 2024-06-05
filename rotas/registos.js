@@ -20,7 +20,7 @@ router.post('/', async (req, res) => {
     try {
         let registo = new Registo({nome, data, pressao_sist, pressao_diast, bpm });
         await registo.save();
-        res.json(registo);
+        res.status(201).send(registo);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Erro no Servidor');

@@ -1,16 +1,28 @@
 var express = require("express");
 const connectDB = require('./db');
 var router = express.Router();
-
-
+const cors = require('cors');
+const bodyParser = require('body-parser');
 
 
 const app = express()
 
+const corsOptions = {
+    origin: 'http://localhost:8081',   
+  };
+
+
+
+app.use(cors(corsOptions));
+app.use(express.json({ extended: false }));
+app.use(bodyParser.json());
+
+
+
 connectDB()
 
-// Middleware para analisar o corpo da requisição
-app.use(express.json({ extended: false }));
+
+app.options('*', cors());
 
 // Definir Rotas
 app.use('/api/registos', require('./rotas/registos'));

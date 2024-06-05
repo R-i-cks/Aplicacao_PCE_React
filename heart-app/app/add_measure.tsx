@@ -3,7 +3,7 @@ import {SafeAreaView, StyleSheet, TextInput, Button, Text, Alert} from 'react-na
 import { Link } from "expo-router";
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
-
+import axios from 'axios';
 
 
 
@@ -11,14 +11,14 @@ import "react-datetime/css/react-datetime.css";
 
 
 const Add_Measure_Input = () => {
-  const [n, nome] = React.useState('');
+  const [n, nome] = React.useState('user');
   const [bpm, heart_rate] = React.useState('');
   const [sp, syst_pressure] = React.useState('');
   const [dp, diast_pressure] = React.useState('');
   const [M_Date, setDate] = React.useState(new Date());
 
   const validateForm = () => {
-    if (!n || !bpm || !sp || !dp || !Date ) {
+    if (!bpm || !sp || !dp || !Date ) {
       Alert.alert('Error', 'All fields are required!');
       return false;
     }
@@ -35,18 +35,18 @@ const Add_Measure_Input = () => {
         pressao_diast: parseInt(dp, 10), 
         bpm : parseInt(bpm, 10)
       }
+    axios.post('http://localhost:5000/api/registos', novo_registo)
+    .then(response => {
+      console.log('Resposta:', response.data);
+    })
+    .catch(error => {
+      console.error('Erro:', error.response.data);
+    });
+    
 };
 
   return (
     <SafeAreaView>
-        <Text>Name</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={nome}
-        value={n}
-        placeholder="JOHN DOE"
-      />
-
 <Text>Date</Text>
     <Datetime />
 

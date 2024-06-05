@@ -7,7 +7,7 @@ const RegistoSchema = new mongoose.Schema({
     },
     data: {
         type: Date,
-        default: Date.now
+        required: true
     },
     pressao_sist: {
         type: Number,

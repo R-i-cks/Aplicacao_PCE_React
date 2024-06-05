@@ -30,6 +30,12 @@ export default function HomeScreen() {
         />
       </Link>
       
+
+      <Link href="/press_info" asChild>
+        <Button
+          title="About blood pressure"
+        />
+      </Link>
       </View>
     </View>
   );

@@ -7,6 +7,7 @@ export default function RootLayout() {
       <Stack.Screen name="add_measure" />
       <Stack.Screen name="history" />
       <Stack.Screen name="notifications" />
+      <Stack.Screen name="press_info" />
     </Stack>
   );
 }
