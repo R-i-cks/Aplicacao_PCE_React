@@ -15,10 +15,10 @@ router.get('/', async (req, res) => {
 
 // Rota para criar um novo registo
 router.post('/', async (req, res) => {
-    const { nome, data, pressao_sist, pressao_diast, bpm } = req.body;
+    const { nome, data, pressao_sist, pressao_diast, bpm, arm } = req.body;
 
     try {
-        let registo = new Registo({nome, data, pressao_sist, pressao_diast, bpm });
+        let registo = new Registo({nome, data, pressao_sist, pressao_diast, bpm, arm });
         await registo.save();
         res.status(201).send(registo);
     } catch (err) {

@@ -22,6 +22,11 @@ const RegistoSchema = new mongoose.Schema({
         required: true
     },
 
+    arm: {
+        type: String,
+        required: true
+    },
+
 });
 
 module.exports = mongoose.model('Registo', RegistoSchema);
