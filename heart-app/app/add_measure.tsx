@@ -35,8 +35,9 @@ const Add_Measure_Input = () => {
         bpm : parseInt(bpm, 10),
         arm: selectedArm 
       }
-    axios.post('http://localhost:5001/api/registos', novo_registo)
+    axios.post('http://localhost:5000/api/registos', novo_registo)
     .then(response => {
+      
       console.log('Resposta:', response.data);
     })
     .catch(error => {

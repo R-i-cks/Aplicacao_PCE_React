@@ -13,7 +13,7 @@ const YourComponent = () => {
 
   const getData = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/registos');
+      const response = await axios.get('http://localhost:5000/api/registos');
       const sortedData = response.data.sort((a, b) => new Date(a.data) - new Date(b.data))
       setData(sortedData);
     } catch (error) {
