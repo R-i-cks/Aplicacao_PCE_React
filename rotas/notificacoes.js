@@ -15,10 +15,10 @@ router.get('/', async (req, res) => {
 
 // Rota para criar uma nova
 router.post('/', async (req, res) => {
-    const {nome, data } = req.body;
+    const {texto, data } = req.body;
 
     try {
-        let notificacao = new Notificacao({nome, data});
+        let notificacao = new Notificacao({texto, data});
         await notificacao.save();
         res.json(notificacao);
     } catch (err) {

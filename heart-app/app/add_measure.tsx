@@ -1,12 +1,10 @@
 import React from 'react';
-import {SafeAreaView, StyleSheet, TextInput, Pressable, Text, Alert, View} from 'react-native';
-import { Link } from "expo-router";
+import { SafeAreaView, StyleSheet, TextInput, Pressable, Text, View } from 'react-native';
+import AwesomeAlert from 'react-native-awesome-alerts';
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
-import axios from 'axios';
 import './style.css';
-
-
+import axios from 'axios';
 
 const Add_Measure_Input = () => {
   const [n, nome] = React.useState('user');
@@ -16,94 +14,147 @@ const Add_Measure_Input = () => {
   const [M_Date, setDate] = React.useState(new Date());
   const [selectedArm, setSelectedArm] = React.useState(null);
 
+  const [showAlert, setShowAlert] = React.useState(false);
+  const [alertTitle, setAlertTitle] = React.useState('');
+  const [alertMessage, setAlertMessage] = React.useState('');
+
   const validateForm = () => {
     if (!bpm || !sp || !dp || !M_Date || !selectedArm) {
-      Alert.alert('Error', 'All fields are required!');
+      setAlertTitle('Error');
+      setAlertMessage('All fields are required!');
+      setShowAlert(true);
       return false;
     }
-    // Falta adicionar validação de formato
-    Alert.alert('Error', 'All fields are required!');
     return true;
   };
 
   const handleSubmit = async () => {
-    const novo_registo = {
-        nome:n , 
-        data : M_Date, 
-        pressao_sist : parseInt(sp, 10), 
-        pressao_diast: parseInt(dp, 10), 
-        bpm : parseInt(bpm, 10),
-        arm: selectedArm 
-      }
-    axios.post('http://localhost:5000/api/registos', novo_registo)
-    .then(response => {
-      
-      console.log('Resposta:', response.data);
-    })
-    .catch(error => {
-      console.error('Erro:', error.response.data);
-    });
-    
-};
+    if (!validateForm()) {
+      return;
+    }
 
-    return (
-      <SafeAreaView style={styles.safearea}>
-        <Text style={styles.label}>Date:</Text>
-        <Datetime className="react-datetime-picker" 
+    const systolicValue = parseInt(sp, 10);
+    const diastolicValue = parseInt(dp, 10);
+    const heart_rate = parseInt(bpm, 10);
+
+
+    if (systolicValue > 140 && diastolicValue > 90) {
+      setAlertTitle('Warning');
+      setAlertMessage('High values for both pressures! Seek medical help!');
+      setShowAlert(true);
+    } else if (systolicValue > 140) {
+      setAlertTitle('Warning');
+      setAlertMessage('High systolic blood pressure! Seek medical help!');
+      setShowAlert(true);
+    } else if (diastolicValue > 90) {
+      setAlertTitle('Warning');
+      setAlertMessage('High diastolic blood pressure! Seek medical help!');
+      setShowAlert(true);
+    }
+    
+    if (heart_rate < 60 || heart_rate > 100) {
+      setAlertTitle('Warning');
+      setAlertMessage('Heart rate is out of normal range! Seek medical help!');
+      setShowAlert(true);
+    }
+    
+    if (systolicValue < 90 || diastolicValue < 60) {
+      setAlertTitle('Warning');
+      setAlertMessage('Blood pressure is too low! Seek medical help!');
+      setShowAlert(true);
+    }
+    
+
+    const novo_registo = {
+      nome: n,
+      data: M_Date,
+      pressao_sist: parseInt(sp, 10),
+      pressao_diast: parseInt(dp, 10),
+      bpm: parseInt(bpm, 10),
+      arm: selectedArm,
+    };
+
+    axios.post('http://localhost:5001/api/registos', novo_registo)
+      .then(response => {
+        console.log('Resposta:', response.data);
+      })
+      .catch(error => {
+        console.error('Erro:', error.response.data);
+      });
+  };
+
+  return (
+    <SafeAreaView style={styles.safearea}>
+      <Text style={styles.label}>Date:</Text>
+      <Datetime
+        className="react-datetime-picker"
         value={M_Date}
         onChange={(date) => setDate(date)}
-        />
-  
-        <Text style={styles.label}>Heart Rate (bpm):</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={heart_rate}
-          value={bpm}
-          placeholder="bpm"
-          keyboardType="numeric"
-        />
-  
-        <Text style={styles.label}>Systolic Pressure (mmHg):</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={syst_pressure}
-          value={sp}
-          placeholder="mmHg"
-          keyboardType="numeric"
-        />
-  
-        <Text style={styles.label}>Diastolic Pressure (mmHg):</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={diast_pressure}
-          value={dp}
-          placeholder="mmHg"
-          keyboardType="numeric"
-        />
-  
-        
-          <Text style={styles.label}>Arm:</Text>
-          <View style={styles.radioContainer}>
-            <Pressable
-              style={[styles.radioButton, selectedArm === 'Right arm' && styles.selected]}
-              onPress={() => setSelectedArm('Right arm')}
-            >
-              <Text style={[styles.radioText, selectedArm === 'Right arm' && { color: 'white'}]}>Right Arm</Text>
-            </Pressable>
-            <Pressable
-              style={[styles.radioButton, selectedArm === 'Left arm' && styles.selected]}
-              onPress={() => setSelectedArm('Left arm')}
-            >
-              <Text style={[styles.radioText, selectedArm === 'Left arm' && { color: 'white'}]}>Left Arm</Text>
-            </Pressable>
-          </View>
-  
-        <Pressable style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Submit</Text>
+      />
+
+      <Text style={styles.label}>Heart Rate (bpm):</Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={heart_rate}
+        value={bpm}
+        placeholder="bpm"
+        keyboardType="numeric"
+      />
+
+      <Text style={styles.label}>Systolic Pressure (mmHg):</Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={syst_pressure}
+        value={sp}
+        placeholder="mmHg"
+        keyboardType="numeric"
+      />
+
+      <Text style={styles.label}>Diastolic Pressure (mmHg):</Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={diast_pressure}
+        value={dp}
+        placeholder="mmHg"
+        keyboardType="numeric"
+      />
+
+      <Text style={styles.label}>Arm:</Text>
+      <View style={styles.radioContainer}>
+        <Pressable
+          style={[styles.radioButton, selectedArm === 'Right arm' && styles.selected]}
+          onPress={() => setSelectedArm('Right arm')}
+        >
+          <Text style={[styles.radioText, selectedArm === 'Right arm' && { color: 'white' }]}>Right Arm</Text>
         </Pressable>
-      </SafeAreaView>
+        <Pressable
+          style={[styles.radioButton, selectedArm === 'Left arm' && styles.selected]}
+          onPress={() => setSelectedArm('Left arm')}
+        >
+          <Text style={[styles.radioText, selectedArm === 'Left arm' && { color: 'white' }]}>Left Arm</Text>
+        </Pressable>
+      </View>
+
+      <Pressable style={styles.button} onPress={handleSubmit}>
+        <Text style={styles.buttonText}>Submit</Text>
+      </Pressable>
+
+      <AwesomeAlert
+        show={showAlert}
+        showProgress={false}
+        title={alertTitle}
+        message={alertMessage}
+        closeOnTouchOutside={true}
+        closeOnHardwareBackPress={false}
+        showConfirmButton={true}
+        confirmText="OK"
+        confirmButtonColor="#DD6B55"
+        onConfirmPressed={() => {
+          setShowAlert(false);
+        }}
+      />
+    </SafeAreaView>
   );
-  
 };
 
 const styles = StyleSheet.create({
@@ -113,7 +164,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     borderColor: 'black',
-    borderWidth: 1,
     borderRadius: 5,
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 2 },

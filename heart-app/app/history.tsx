@@ -1,24 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, FlatList, Dimensions } from 'react-native';
+import { View, ScrollView, Text, FlatList, Dimensions, Pressable, TextInput } from 'react-native';
 import axios from 'axios';
-import { format } from 'date-fns'
-
-
-import {
-  LineChart,
-} from "react-native-chart-kit";
+import { format } from 'date-fns';
+import { LineChart } from "react-native-chart-kit";
+import Datetime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
 
 const YourComponent = () => {
   const [data, setData] = useState([]);
+  const [editingId, setEditingId] = useState(null); // Estado para controlar o ID do item em edição
+  const [editedFields, setEditedFields] = useState({}); // Estado para armazenar os campos editados
 
   const getData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/registos');
-      const sortedData = response.data.sort((a, b) => new Date(a.data) - new Date(b.data))
+      const response = await axios.get('http://localhost:5001/api/registos');
+      const sortedData = response.data.sort((a, b) => new Date(a.data) - new Date(b.data));
       setData(sortedData);
     } catch (error) {
       console.error('Error fetching data:', error);
-      // Handle the error
+    }
+  };
+
+  const handleRemove = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5001/api/registos/${id}`);
+      getData(); // Atualiza os dados após a remoção
+    } catch (error) {
+      console.error('Erro ao remover o registo:', error);
+    }
+  };
+
+  const handleEdit = (id) => {
+    setEditingId(id); // Define o ID do item em edição
+  };
+
+  const handleSave = async (id) => {
+    try {
+      // Atualiza os campos editados no servidor
+      await axios.put(`http://localhost:5001/api/registos/${id}`, editedFields);
+      getData(); // Atualiza os dados após a edição
+      setEditingId(null); // Volta para o modo de visualização padrão
+      setEditedFields({}); // Limpa os campos editados
+    } catch (error) {
+      console.error('Erro ao editar o registo:', error);
     }
   };
 
@@ -36,7 +60,6 @@ const YourComponent = () => {
   let arms = [];
   let entrada;
   for (entrada in data){
-    console.log("Entrada: " + data[entrada])
       p_s.push(data[entrada].pressao_sist)
       p_d.push(data[entrada].pressao_diast)
       bpms.push(data[entrada].bpm)
@@ -48,7 +71,7 @@ const YourComponent = () => {
 
       return (
         <ScrollView contentContainerStyle={{ padding: 16 }} onStartShouldSetResponder={true}>
-          <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 4, marginTop: 4 }}>Pressão Sistólica:</Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 4, marginTop: 4 }}>Systolic Pressure:</Text>
           <View style={{ alignItems: 'center' }}>
             <LineChart
               data={{
@@ -85,7 +108,7 @@ const YourComponent = () => {
             />
           </View>
     
-          <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 4, marginTop: 4 }}>Pressão Diastólica:</Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 4, marginTop: 4 }}>Diastolic Pressure:</Text>
           <View style={{ alignItems: 'center' }}>
             <LineChart
               data={{
@@ -161,23 +184,78 @@ const YourComponent = () => {
     
           <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 4, marginTop: 4 }}>Data:</Text>
           <FlatList
-            data={data}
-            renderItem={({ item }) => (
-              <View style={dataView}>
-                <Text style={titleData}> Date:</Text> 
-                <Text style={text}>{format(new Date(item.data), 'yyyy-MM-dd')}</Text>
-                <Text style={titleData}> Systolic Pressure:</Text>
-                <Text style={text}>{item.pressao_sist}</Text>
-                <Text style={titleData}> Diastolic Pressure:</Text>
-                <Text style={text}>{item.pressao_diast}</Text>
-                <Text style={titleData}> Heart Rate:</Text>
-                <Text style={text}>{item.bpm}</Text>
-                <Text style={titleData}> Arm:</Text>
-                <Text style={text}>{item.arm}</Text>
-              </View>
+        data={data}
+        renderItem={({ item }) => (
+          <View style={dataView}>
+            <Text style={titleData}> Date:</Text>
+            <Text style={text}>{format(new Date(item.data), 'yyyy-MM-dd')}</Text>
+            <Text style={titleData}> Systolic Pressure:</Text>
+            {editingId === item._id ? (
+              <TextInput
+                style={input}
+                value={editedFields.pressao_sist || item.pressao_sist}
+                onChangeText={(text) => setEditedFields({...editedFields, pressao_sist: text})}
+              />
+            ) : (
+              <Text style={text}>{item.pressao_sist}</Text>
             )}
-            keyExtractor={(item, index) => index.toString()}
-          />
+            <Text style={titleData}> Diastolic Pressure:</Text>
+            {editingId === item._id ? (
+              <TextInput
+              style={input}
+                value={editedFields.pressao_diast || item.pressao_diast}
+                onChangeText={(text) => setEditedFields({...editedFields, pressao_diast: text})}
+              />
+            ) : (
+              <Text style={text}>{item.pressao_diast}</Text>
+            )}
+            <Text style={titleData}> Heart Rate:</Text>
+            {editingId === item._id ? (
+              <TextInput
+                style={input}
+                value={editedFields.bpm || item.bpm}
+                onChangeText={(text) => setEditedFields({...editedFields, bpm: text})}
+              />
+            ) : (
+              <Text style={text}>{item.bpm}</Text>
+            )}
+            <Text style={titleData}> Arm:</Text>
+            {editingId === item._id ? (
+              <TextInput
+                style={input}
+                value={editedFields.arm || item.arm}
+                onChangeText={(text) => setEditedFields({...editedFields, arm: text})}
+              />
+            ) : (
+              <Text style={text}>{item.arm}</Text>
+            )}
+
+            <View style={{ flexDirection: 'row', marginTop: 5 }}>
+              <Pressable
+                style={editButton}
+                onPress={() => {
+                  if (editingId === item._id) {
+                    handleSave(item._id);
+                  } else {
+                    handleEdit(item._id);
+                  }
+                }}
+              >
+                <Text style={buttonText}>{editingId === item._id ? 'Save' : 'Edit'}</Text>
+              </Pressable>
+              {editingId === item._id ? null : (
+                <Pressable
+                  style={removeButton}
+                  onPress={() => handleRemove(item._id)}
+                >
+                  <Text style={buttonText}>Remove</Text>
+                </Pressable>
+              )}
+            </View>
+          </View>
+        )}
+        keyExtractor={(item) => item._id.toString()}
+      />
         </ScrollView>
       );
     };
@@ -209,5 +287,49 @@ const YourComponent = () => {
     const titleData = {
       fontWeight: 'bold',
     };
+
+   const editButton = {
+      backgroundColor: '#f97000',
+      padding: 8,
+      borderRadius: 5,
+      alignItems: 'center',
+      shadowColor: 'black',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 2,
+    };
+  
+    const removeButton = {
+      backgroundColor: '#f97000',
+      padding: 8,
+      borderRadius: 5,
+      alignItems: 'center',
+      shadowColor: 'black',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 2,
+      marginLeft: 8,
+    };
+    
+    const buttonText = {
+      color: 'white',
+      fontWeight: 'bold',
+    };
+
+    const input = {
+      height: 30,
+      margin: 8,
+      borderWidth: 1,
+      padding: 10,
+      borderColor: 'black',
+      borderRadius: 5,
+      shadowColor: 'black',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 2,
+      color: '#33333',
+      backgroundColor: 'white',
+    };
+
 
 export default YourComponent;

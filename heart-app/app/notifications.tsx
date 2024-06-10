@@ -1,136 +1,126 @@
 import React, { useState, useEffect } from 'react';
-import {SafeAreaView, ScrollView , StyleSheet, FlatList , TextInput, Pressable, Text, Alert, View, Dimensions} from 'react-native';
-import { Link } from "expo-router";
+import { ScrollView, StyleSheet, FlatList, TextInput, Pressable, Text, View } from 'react-native';
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import axios from 'axios';
 import './style.css';
-import { format } from 'date-fns'
-
-
-
-
-
+import { format } from 'date-fns';
+import { Divider } from '@rneui/themed';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 const Add_Notification_Input = () => {
-  const [M_Date, setDate] = React.useState(new Date());
-  const [info, setInfo] = React.useState('');
+  const [M_Date, setDate] = useState(new Date());
+  const [info, setInfo] = useState('');
+  const [notifications, setNotifications] = useState([]);
+
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
 
   const validateForm = () => {
-    if (!M_Date) {
-      Alert.alert('Error', 'You must in introduce the date for your notification!');
+    if (!M_Date || !info.trim()) {
+      setAlertTitle('Error');
+      setAlertMessage('Please provide both date and description for the notification.');
+      setShowAlert(true);
       return false;
     }
-    // Falta adicionar validação de formato
-    Alert.alert('Error', 'All good');
     return true;
   };
 
   const handleSubmit = async () => {
-    const nova_notificacao = { 
-        data : M_Date, 
-        texto: info
-      }
-    axios.post('http://localhost:5000/api/notificacoes', nova_notificacao)
-    .then(response => {
-      console.log('Resposta:', response.data);
-    })
-    .catch(error => {
-      console.error('Erro:', error.response.data);
-    });
-    
+    if (!validateForm()) {
+      return;
+    }
 
+    const nova_notificacao = {
+      data: M_Date,
+      texto: info
+    };
 
+    try {
+      const response = await axios.post('http://localhost:5001/api/notificacoes', nova_notificacao);
+      console.log('Response:', response.data);
+      // Atualiza os dados após a submissão bem-sucedida
+      getData();
+    } catch (error) {
+      setAlertTitle('Error');
+      setAlertMessage(error.response ? error.response.data : error.message);
+      setShowAlert(true);
+    }
+  };
 
-const getData = async () => {
-  const [not, setNot] = useState([]);
-  try {
-    const response = await axios.get('http://localhost:5000/api/notificacoes');
-    const sortedData = response.data.sort((a, b) => new Date(a.data) - new Date(b.data))
-    setNot(sortedData);
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    // Handle the error
-  }
-};
+  const getData = async () => {
+    try {
+      const response = await axios.get('http://localhost:5001/api/notificacoes');
+      const sortedData = response.data.sort((a, b) => new Date(a.data) - new Date(b.data));
+      setNotifications(sortedData);
+    } catch (error) {
+      setAlertTitle('Error');
+      setAlertMessage('Error fetching data: ' + error.message);
+      setShowAlert(true);
+    }
+  };
 
-useEffect(() => {
-  getData();
-}, []);
+  useEffect(() => {
+    getData();
+  }, []);
 
-};
-    return (
-      <ScrollView contentContainerStyle={{ padding: 16 }} onStartShouldSetResponder={true}>
-          <SafeAreaView style={styles.safearea}>
-            <Text style={styles.label}>Date:</Text>
-            <Datetime className="react-datetime-picker" 
-            value={M_Date}
-            onChange={(date) => setDate(date)}
-            />
-      
-        
+  return (
+    <ScrollView contentContainerStyle={{ padding: 16 }} onStartShouldSetResponder={true}>
+      <View style={styles.safearea}>
+        <Text style={styles.label}>Date:</Text>
+        <Datetime
+          className="react-datetime-picker"
+          value={M_Date}
+          onChange={(date) => setDate(date)}
+        />
 
-            <Text style={styles.label}>Descrição evento</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={setInfo}
-              value={info}
-              placeholder="Don´t forget to measure your blood pressure!"
-            />
-      
-            
-            <Pressable style={styles.button} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>Submit</Text>
-            </Pressable>
-          </SafeAreaView>
-        <ScrollView contentContainerStyle={{ padding: 16 }} onStartShouldSetResponder={true}>
-          <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 4, marginTop: 4 }}>Data:</Text>
-                    <FlatList
-                      data={info}
-                      renderItem={({ item }) => (
-                        <View style={dataView}>
-                          <Text style={titleData}> Date:</Text> 
-                          <Text style={text}>{format(new Date(item.data), 'yyyy-MM-dd')}</Text>
-                          <Text style={titleData}> Texto:</Text>
-                          <Text style={text}>{item.texto}</Text>
-                        </View>
-                      )}
-                      keyExtractor={(item, index) => index.toString()}
-                    />
-        </ScrollView>
-      </ScrollView>
+        <Text style={styles.label}>Description:</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={setInfo}
+          value={info}
+          placeholder="Don't forget to measure your blood pressure!"
+        />
+
+        <Pressable style={styles.button} onPress={handleSubmit}>
+          <Text style={styles.buttonText}>Submit</Text>
+        </Pressable>
+      </View>
+
+      <View style={{ marginTop: 95 }}>
+        <Divider marginTop={80} width={3} />
+        <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 4, marginTop: 20 }}>History:</Text>
+        <FlatList
+          data={notifications}
+          renderItem={({ item }) => (
+            <View style={styles.dataView}>
+              <Text style={styles.titleData}>Date:</Text>
+              <Text style={styles.text}>{format(new Date(item.data), 'yyyy-MM-dd')}</Text>
+              <Text style={styles.titleData}>Description:</Text>
+              <Text style={styles.text}>{item.texto}</Text>
+            </View>
+          )}
+        />
+      </View>
+
+      <AwesomeAlert
+        show={showAlert}
+        showProgress={false}
+        title={alertTitle}
+        message={alertMessage}
+        closeOnTouchOutside={true}
+        closeOnHardwareBackPress={false}
+        showConfirmButton={true}
+        confirmText="OK"
+        confirmButtonColor="#DD6B55"
+        onConfirmPressed={() => {
+          setShowAlert(false);
+        }}
+      />
+    </ScrollView>
   );
-
 };
-
-const chartStyle = {
-  margin: 8,
-  borderRadius: 16,
-  borderWidth: 2,
-  borderColor: 'coral',
-  shadowColor: 'black',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 2,
-};
-
-const dataView = {
-  backgroundColor: 'white',
-  borderColor: 'coral',
-  borderWidth: 2,
-  borderRadius: 8,
-  padding: 6,
-  margin: 4,
-};
-
-const text = {
-  padding: 3,
-};
-
-const titleData = {
-  fontWeight: 'bold',
-};
-
 
 const styles = StyleSheet.create({
   input: {
@@ -139,7 +129,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     borderColor: 'black',
-    borderWidth: 1,
     borderRadius: 5,
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 2 },
@@ -150,16 +139,17 @@ const styles = StyleSheet.create({
   },
   safearea: {
     flex: 1,
-    marginTop: 20,
+    marginTop: 10,
     marginLeft: 10,
     marginRight: 10,
+    marginBottom: 10,
   },
   button: {
     backgroundColor: '#f97000',
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 60,
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -174,7 +164,7 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 16,
     fontWeight: 'bold',
-    marginTop: 10,
+    marginTop: 20,
   },
   radioContainer: {
     flexDirection: 'row',
@@ -198,10 +188,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#f97000',
     color: 'white',
   },
-
-  
+  dataView: {
+    backgroundColor: 'white',
+    borderColor: 'coral',
+    borderWidth: 2,
+    borderRadius: 8,
+    padding: 6,
+    margin: 4,
+  },
+  text: {
+    padding: 3,
+  },
+  titleData: {
+    fontWeight: 'bold',
+  },
 });
 
 export default Add_Notification_Input;
-
-
