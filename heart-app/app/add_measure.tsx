@@ -7,8 +7,8 @@ import './style.css';
 import axios from 'axios';
 import { Link } from "expo-router";
 
+
 const Add_Measure_Input = () => {
-  const [n, nome] = React.useState('user');
   const [bpm, heart_rate] = React.useState('');
   const [sp, syst_pressure] = React.useState('');
   const [dp, diast_pressure] = React.useState('');
@@ -17,11 +17,17 @@ const Add_Measure_Input = () => {
   const [showAlert, setShowAlert] = React.useState(false);
   const [alertTitle, setAlertTitle] = React.useState('');
   const [alertMessage, setAlertMessage] = React.useState('');
+  
+
+  const isValidInteger = (value) => {
+    // Check if the value is a valid integer string
+    return /^-?\d+$/.test(value);
+  };
 
   const validateForm = () => {
-    if (!bpm || !sp || !dp || !M_Date || !selectedArm) {
+    if (!isValidInteger(bpm) || !isValidInteger(sp) || !isValidInteger(dp) || !M_Date || !selectedArm) {
       setAlertTitle('Error');
-      setAlertMessage('All fields are required!');
+      setAlertMessage('All fields are required! Some fields may not be the correct type!');
       setShowAlert(true);
       return false;
     }
@@ -36,7 +42,12 @@ const Add_Measure_Input = () => {
     const systolicValue = parseInt(sp, 10);
     const diastolicValue = parseInt(dp, 10);
     const heart_rate = parseInt(bpm, 10);
-
+    let arm_loc='';
+    if (selectedArm == 'Right arm'){
+      arm_loc = 'at0025';
+    } else{
+      arm_loc = 'at0026';
+    }
 
     if (systolicValue > 140 && diastolicValue > 90) {
       setAlertTitle('Warning');
@@ -66,12 +77,11 @@ const Add_Measure_Input = () => {
     
 
     const novo_registo = {
-      nome: n,
-      data: M_Date,
-      pressao_sist: parseInt(sp, 10),
-      pressao_diast: parseInt(dp, 10),
+      date_t: M_Date,
+      at0004: parseInt(sp, 10),
+      at0005: parseInt(dp, 10),
       bpm: parseInt(bpm, 10),
-      arm: selectedArm,
+      at0014: arm_loc,
     };
 
     axios.post('http://localhost:5001/api/registos', novo_registo)
@@ -96,7 +106,7 @@ const Add_Measure_Input = () => {
       <Datetime
         className="react-datetime-picker"
         value={M_Date}
-        onChange={(date) => setDate(date)}
+        onChange={(date_t) => setDate(date_t)}
       />
 
       <Text style={styles.label}>Heart Rate (bpm):</Text>

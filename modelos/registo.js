@@ -1,32 +1,39 @@
 const mongoose = require('mongoose');
 
 const RegistoSchema = new mongoose.Schema({
-    nome: {
-        type: String,
-        required: true
+
+    archetype_id: {type:String,
+                   required: true,
+                   default: 'openEHR-EHR-OBSERVATION.blood_pressure.v2'
     },
     data: {
+        //sistolica
+        at0004: {
+            type: Number,
+            required: true
+        },
+        //diastolica
+        at0005: {
+            type: Number,
+            required: true
+        },
+        bpm: {
+            type: Number,
+            required: true
+        }
+        
+    },
+    date_t: {
         type: Date,
         required: true
     },
-    pressao_sist: {
-        type: Number,
-        required: true
-    },
-    pressao_diast: {
-        type: Number,
-        required: true
-    },
-    bpm: {
-        type: Number,
-        required: true
-    },
-
-    arm: {
-        type: String,
-        required: true
-    },
-
+    protocol: {
+        //location
+        at0014: {
+            type: String,
+            required: true
+        }
+    }
 });
 
-module.exports = mongoose.model('Registo', RegistoSchema);
+module.exports = mongoose.model('Blood pressure', RegistoSchema);

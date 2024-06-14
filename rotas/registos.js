@@ -15,10 +15,10 @@ router.get('/', async (req, res) => {
 
 // Rota para criar um novo registo
 router.post('/', async (req, res) => {
-    const { nome, data, pressao_sist, pressao_diast, bpm, arm } = req.body;
+    const { at0004, at0005, bpm, at1007, date_t, at0014 } = req.body;
 
     try {
-        let registo = new Registo({nome, data, pressao_sist, pressao_diast, bpm, arm });
+        let registo = new Registo({ data: {at0004, at0005, bpm, at1007}, date_t, protocol:{at0014} });
         await registo.save();
         res.status(201).send(registo);
     } catch (err) {
@@ -42,9 +42,11 @@ router.get('/:id', async(req, res)=> {
 });
 
 router.put('/:id', async(req, res)=>{
+    console.log(req.params)
     try {
-        
+        console.log('Hello')
         const{id} = req.params;
+        
         const registo = await Registo.findByIdAndUpdate(id, req.body);
         if (!registo){
             return res.status(404).send('Registo não encontrado');

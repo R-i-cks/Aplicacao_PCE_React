@@ -17,8 +17,6 @@ app.use(cors(corsOptions));
 app.use(express.json({ extended: false }));
 app.use(bodyParser.json());
 
-
-
 connectDB()
 
 
