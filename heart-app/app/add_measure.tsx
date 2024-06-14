@@ -152,7 +152,7 @@ const Add_Measure_Input = () => {
         </Pressable>
       </View>
 
-      <Link href="/" asChild>
+      <Link href="/history" asChild>
       <Pressable style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Submit</Text>
       </Pressable>
