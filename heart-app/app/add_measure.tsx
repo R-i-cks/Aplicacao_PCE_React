@@ -5,6 +5,7 @@ import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import './style.css';
 import axios from 'axios';
+import { Link } from "expo-router";
 
 const Add_Measure_Input = () => {
   const [n, nome] = React.useState('user');
@@ -13,7 +14,6 @@ const Add_Measure_Input = () => {
   const [dp, diast_pressure] = React.useState('');
   const [M_Date, setDate] = React.useState(new Date());
   const [selectedArm, setSelectedArm] = React.useState(null);
-
   const [showAlert, setShowAlert] = React.useState(false);
   const [alertTitle, setAlertTitle] = React.useState('');
   const [alertMessage, setAlertMessage] = React.useState('');
@@ -77,9 +77,16 @@ const Add_Measure_Input = () => {
     axios.post('http://localhost:5001/api/registos', novo_registo)
       .then(response => {
         console.log('Resposta:', response.data);
+        setAlertTitle('Sucess');
+        setAlertMessage('New measure entered sucessufully');
+        setShowAlert(true);
+
       })
       .catch(error => {
         console.error('Erro:', error.response.data);
+        setAlertTitle('Failure');
+        setAlertMessage('Insert failed, please try again later');
+        setShowAlert(true);
       });
   };
 
@@ -135,10 +142,12 @@ const Add_Measure_Input = () => {
         </Pressable>
       </View>
 
+      <Link href="/" asChild>
       <Pressable style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Submit</Text>
       </Pressable>
-
+      </Link>
+      
       <AwesomeAlert
         show={showAlert}
         showProgress={false}

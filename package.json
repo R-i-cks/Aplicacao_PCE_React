@@ -13,8 +13,14 @@
   "description": "",
   "dependencies": {
     "axios": "^1.7.2",
+    "coffee-script": "^1.12.7",
     "cors": "^2.8.5",
+    "events": "^3.3.0",
     "express": "^4.19.2",
+    "gapi": "^0.0.3",
+    "googleapis": "^140.0.0",
+    "http-server": "^14.1.1",
+    "inherits": "^2.0.4",
     "mongoose": "^8.4.0"
   },
   "devDependencies": {

@@ -28,7 +28,7 @@ app.options('*', cors());
 app.use('/api/registos', require('./rotas/registos'));
 app.use('/api/notificacoes', require('./rotas/notificacoes'));
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => console.log(`Servidor iniciado na porta ${PORT}`));
 

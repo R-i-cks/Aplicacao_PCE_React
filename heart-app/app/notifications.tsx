@@ -17,6 +17,11 @@ const Add_Notification_Input = () => {
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
 
+  const resetFields = () => {
+    setDate(new Date());
+    setInfo('');
+  };
+
   const validateForm = () => {
     if (!M_Date || !info.trim()) {
       setAlertTitle('Error');
@@ -41,7 +46,11 @@ const Add_Notification_Input = () => {
       const response = await axios.post('http://localhost:5001/api/notificacoes', nova_notificacao);
       console.log('Response:', response.data);
       // Atualiza os dados após a submissão bem-sucedida
+      setAlertTitle('Sucess');
+      setAlertMessage("Notification added with sucess!");
+      setShowAlert(true);
       getData();
+      resetFields()
     } catch (error) {
       setAlertTitle('Error');
       setAlertMessage(error.response ? error.response.data : error.message);
