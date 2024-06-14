@@ -38,7 +38,7 @@ const Add_Notification_Input = () => {
     };
 
     try {
-      const response = await axios.post('http://localhost:5001/api/notificacoes', nova_notificacao);
+      const response = await axios.post('http://localhost:5000/api/notificacoes', nova_notificacao);
       console.log('Response:', response.data);
       // Atualiza os dados após a submissão bem-sucedida
       getData();
@@ -51,7 +51,7 @@ const Add_Notification_Input = () => {
 
   const getData = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/notificacoes');
+      const response = await axios.get('http://localhost:5000/api/notificacoes');
       const sortedData = response.data.sort((a, b) => new Date(a.data) - new Date(b.data));
       setNotifications(sortedData);
     } catch (error) {

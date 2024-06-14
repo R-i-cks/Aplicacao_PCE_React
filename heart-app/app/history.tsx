@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, FlatList, Dimensions, Pressable, TextInput } from 'react-native';
+import { View, ScrollView, Text, FlatList, Dimensions, Pressable, TextInput, Alert } from 'react-native';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { LineChart } from "react-native-chart-kit";
-import Datetime from "react-datetime";
-import "react-datetime/css/react-datetime.css";
 
 const YourComponent = () => {
-  const [data, setData] = useState([]);
+  const [dados, setData] = useState([]);
   const [editingId, setEditingId] = useState(null); // Estado para controlar o ID do item em edição
   const [editedFields, setEditedFields] = useState({}); // Estado para armazenar os campos editados
 
   const getData = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/registos');
-      const sortedData = response.data.sort((a, b) => new Date(a.data) - new Date(b.data));
+      const response = await axios.get('http://localhost:5000/api/registos');
+      const sortedData = response.data.sort((a, b) => new Date(a.date_t) - new Date(b.date_t));
       setData(sortedData);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -23,7 +21,7 @@ const YourComponent = () => {
 
   const handleRemove = async (id) => {
     try {
-      await axios.delete(`http://localhost:5001/api/registos/${id}`);
+      await axios.delete(`http://localhost:5000/api/registos/${id}`);
       getData(); // Atualiza os dados após a remoção
     } catch (error) {
       console.error('Erro ao remover o registo:', error);
@@ -31,13 +29,16 @@ const YourComponent = () => {
   };
 
   const handleEdit = (id) => {
+    console.log(id)
     setEditingId(id); // Define o ID do item em edição
   };
 
   const handleSave = async (id) => {
     try {
       // Atualiza os campos editados no servidor
-      await axios.put(`http://localhost:5001/api/registos/${id}`, editedFields);
+      console.log(editedFields)
+      await axios.put(`http://localhost:5000/api/registos/${id}`, editedFields);
+      console.log("fiz put")
       getData(); // Atualiza os dados após a edição
       setEditingId(null); // Volta para o modo de visualização padrão
       setEditedFields({}); // Limpa os campos editados
@@ -46,31 +47,65 @@ const YourComponent = () => {
     }
   };
 
-
   useEffect(() => {
     getData();
   }, []);
 
-
+  
 
   let p_s = [];
   let p_d = [];
   let bpms = [];
+
   let datas = [];
   let arms = [];
   let entrada;
-  for (entrada in data){
-      p_s.push(data[entrada].pressao_sist)
-      p_d.push(data[entrada].pressao_diast)
-      bpms.push(data[entrada].bpm)
-      datas.push(format(new Date(data[entrada].data), 'yyyy-MM-dd'))
-      arms.push(data[entrada].arm)
+
+  for (entrada in dados){
+      p_s.push(dados[entrada].data.at0004)
+      p_d.push(dados[entrada].data.at0005)
+      bpms.push(dados[entrada].data.bpm)
+      datas.push(format(new Date(dados[entrada].date_t), 'yyyy-MM-dd'))
+      if (dados[entrada].protocol.at0014 == 'at0025'){
+        arms.push('Right arm')
+      } else{
+        arms.push('Left arm')
+      }
+      arms.push()
       }
     
       const screenWidth = Dimensions.get("window").width;
 
+      const armCodes = {
+        'at0026': 'Left Arm',
+        'at0025': 'Right Arm',
+        // Add more codes and their text representations as needed
+      };
+      const armCodesBack = {
+        'Left Arm': 'at0026',
+        'Right Arm': 'at0025' ,
+        // Add more codes and their text representations as needed
+      };
+      
       return (
+
         <ScrollView contentContainerStyle={{ padding: 16 }} onStartShouldSetResponder={true}>
+            <Pressable
+            style={{
+            backgroundColor: '#f97000',
+            padding: 12,
+            borderRadius: 5,
+            alignItems: 'center',
+            marginTop: 16,
+            shadowColor: 'black',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 2,
+          }}
+          
+        >
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>Generate PDF</Text>
+        </Pressable>
           <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 4, marginTop: 4 }}>Systolic Pressure:</Text>
           <View style={{ alignItems: 'center' }}>
             <LineChart
@@ -184,50 +219,54 @@ const YourComponent = () => {
     
           <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 4, marginTop: 4 }}>Data:</Text>
           <FlatList
-        data={data}
+        data={dados}
         renderItem={({ item }) => (
           <View style={dataView}>
             <Text style={titleData}> Date:</Text>
-            <Text style={text}>{format(new Date(item.data), 'yyyy-MM-dd')}</Text>
+            <Text style={text}>{format(new Date(item.date_t), 'yyyy-MM-dd')}</Text>
             <Text style={titleData}> Systolic Pressure:</Text>
             {editingId === item._id ? (
               <TextInput
                 style={input}
-                value={editedFields.pressao_sist || item.pressao_sist}
-                onChangeText={(text) => setEditedFields({...editedFields, pressao_sist: text})}
+                value={editedFields.data.at0004 || item.data.at0004}
+                onChangeText={(text) => setEditedFields({...editedFields, {data:at0004}: text})}
               />
             ) : (
-              <Text style={text}>{item.pressao_sist}</Text>
+              <Text style={text}>{item.data.at0004}</Text>
             )}
             <Text style={titleData}> Diastolic Pressure:</Text>
             {editingId === item._id ? (
               <TextInput
               style={input}
-                value={editedFields.pressao_diast || item.pressao_diast}
+                value={editedFields.pressao_diast || item.data.at0005}
                 onChangeText={(text) => setEditedFields({...editedFields, pressao_diast: text})}
               />
             ) : (
-              <Text style={text}>{item.pressao_diast}</Text>
+              <Text style={text}>{item.data.at0005}</Text>
             )}
             <Text style={titleData}> Heart Rate:</Text>
             {editingId === item._id ? (
               <TextInput
                 style={input}
-                value={editedFields.bpm || item.bpm}
+                value={editedFields.bpm || item.data.bpm}
                 onChangeText={(text) => setEditedFields({...editedFields, bpm: text})}
               />
             ) : (
-              <Text style={text}>{item.bpm}</Text>
+              <Text style={text}>{item.data.bpm}</Text>
             )}
             <Text style={titleData}> Arm:</Text>
+            
             {editingId === item._id ? (
               <TextInput
                 style={input}
-                value={editedFields.arm || item.arm}
-                onChangeText={(text) => setEditedFields({...editedFields, arm: text})}
+                value={editedFields.arm || armCodes[item.protocol.at0014]}
+                onChangeText={(text) => {
+                  // Find the code from the text if needed; if using text directly, adjust as required
+                  setEditedFields({ ...editedFields, arm: armCodesBack[text] });
+                }}
               />
             ) : (
-              <Text style={text}>{item.arm}</Text>
+              <Text style={text}>{armCodes[item.protocol.at0014]}</Text>
             )}
 
             <View style={{ flexDirection: 'row', marginTop: 5 }}>
