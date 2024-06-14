@@ -6,6 +6,7 @@ import Datetime from 'react-datetime';
 import "react-datetime/css/react-datetime.css";
 import './style.css';
 import { LineChart } from "react-native-chart-kit";
+const fetchAndFilterOldEntries = require('../scripts/filter_dates');
 
 const YourComponent = () => {
   const [dados, setData] = useState([]);
@@ -81,6 +82,14 @@ const YourComponent = () => {
       >
         <Text style={{ color: 'white', fontWeight: 'bold' }}>Generate PDF</Text>
       </Pressable>
+
+
+// codigo para escolher a filtragem
+
+
+
+
+
       <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 4, marginTop: 4 }}>Systolic Pressure:</Text>
       <View style={{ alignItems: 'center' }}>
         <LineChart
