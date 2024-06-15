@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, FlatList, Dimensions, Pressable, TextInput, TouchableOpacity, Button } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, ScrollView, Text, FlatList, Dimensions, Pressable, TextInput, TouchableOpacity, Picker } from 'react-native';
 import axios from 'axios';
 import { format } from 'date-fns';
 import Datetime from 'react-datetime';
@@ -14,12 +14,22 @@ const YourComponent = () => {
   const [dados, setData] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editedFields, setEditedFields] = useState({});
+  const [selectedOption, setSelectedOption] = useState('all')
 
   const getData = async () => {
     try {
       const response = await axios.get('http://localhost:5001/api/registos');
       const sortedData = response.data.sort((a, b) => new Date(a.date_t) - new Date(b.date_t));
-      setData(sortedData);
+      let filteredData = [];
+      if (selectedOption === 'all') {
+        filteredData = sortedData;
+      } else { 
+        const days = parseInt(selectedOption);
+        filteredData = await fetchAndFilterOldEntries(days);
+        filteredData = filteredData.sort((a, b) => new Date(a.date_t) - new Date(b.date_t));
+      }
+
+      setData(filteredData);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -53,7 +63,7 @@ const YourComponent = () => {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [selectedOption]);
 
   const screenWidth = Dimensions.get("window").width;
 
@@ -66,9 +76,9 @@ const YourComponent = () => {
     return Object.keys(armCodes).find(key => armCodes[key] === arm);
   };
 
-  const chartRef1 = useRef(null); // Ref para o primeiro LineChart
-  const chartRef2 = useRef(null); // Ref para o segundo LineChart
-  const chartRef3 = useRef(null); // Ref para o terceiro LineChart
+  const chartRef1 = useRef(null);  
+  const chartRef2 = useRef(null); 
+  const chartRef3 = useRef(null); 
 
   const captureChartAsImage = async (chartRef) => {
     const base64Image = await captureRef(chartRef.current, {
@@ -92,7 +102,6 @@ const YourComponent = () => {
   const captureAndEmbedChart = async (chartRef, pdfDoc, page, yOffset) => {
     if (chartRef.current) {
       try {
-        console.log(chartRef)
         if (chartRef == chartRef1) {
           const chartImageBase64 = await captureChartAsImage(chartRef);
           const pngImage = await pdfDoc.embedPng(chartImageBase64);
@@ -102,10 +111,10 @@ const YourComponent = () => {
 
           page.drawText("Pressão Sistólica", {
             x: 20,
-            y: yOffset + 210, // Define a posição do texto na página
+            y: yOffset + 210,  
             size: 16,
             font: font,
-            color: rgb(0, 0, 0), // Define a cor do texto (no caso, preto)
+            color: rgb(0, 0, 0), 
           });
 
           page.drawImage(pngImage, {
@@ -114,7 +123,7 @@ const YourComponent = () => {
             width: imageSize.width,
             height: imageSize.height,
           });
-          yOffset += imageSize.height; // Ajusta o yOffset para a próxima posição
+          yOffset += imageSize.height; 
         }
 
         else if (chartRef == chartRef2) {
@@ -126,10 +135,10 @@ const YourComponent = () => {
 
           page.drawText("Pressão Diastólica", {
             x: 20,
-            y: yOffset + 210, // Define a posição do texto na página
+            y: yOffset + 210, 
             size: 16,
             font: font,
-            color: rgb(0, 0, 0), // Define a cor do texto (no caso, preto)
+            color: rgb(0, 0, 0), 
           });
 
           page.drawImage(pngImage, {
@@ -138,7 +147,7 @@ const YourComponent = () => {
             width: imageSize.width,
             height: imageSize.height,
           });
-          yOffset += imageSize.height; // Ajusta o yOffset para a próxima posição
+          yOffset += imageSize.height; 
         }
 
         else if (chartRef == chartRef3) {
@@ -150,10 +159,10 @@ const YourComponent = () => {
 
           page.drawText("Batimento cardíaco", {
             x: 20,
-            y: yOffset + 210, // Define a posição do texto na página
+            y: yOffset + 210, 
             size: 16,
             font: font,
-            color: rgb(0, 0, 0), // Define a cor do texto (no caso, preto)
+            color: rgb(0, 0, 0), 
           });
 
           page.drawImage(pngImage, {
@@ -162,7 +171,7 @@ const YourComponent = () => {
             width: imageSize.width,
             height: imageSize.height,
           });
-          yOffset += imageSize.height; // Ajusta o yOffset para a próxima posição
+          yOffset += imageSize.height; 
         }
 
       } catch (error) {
@@ -192,7 +201,7 @@ const YourComponent = () => {
 
       const image = await pdfDoc.embedPng(imageBase64);
 
-      // Get the dimensions of the image
+      
       const imageDims = image.scale(0.07);
 
       const x = (width - (textWidth + imageDims.width + 10)) / 2;
@@ -216,15 +225,15 @@ const YourComponent = () => {
       yOffset -= 250;
 
 
-      const borderWidth = 2; // Linha mais fina
-      const margin = 10; // Margem interna maior
+      const borderWidth = 2; 
+      const margin = 10; 
 
       page.drawRectangle({
         x: margin,
         y: margin,
         width: width - 2 * margin,
         height: height - 2 * margin,
-        borderColor: rgb(255 / 255, 121 / 255, 0), // Cor laranja
+        borderColor: rgb(255 / 255, 121 / 255, 0), 
         borderWidth,
       });
 
@@ -238,7 +247,7 @@ const YourComponent = () => {
 
       const secondpage = pdfDoc.addPage();
 
-      // Defina as dimensões e posição da tabela
+      
       const tableTop = 730;
       const tableLeft = 50;
       const cellHeight = 30;
@@ -274,13 +283,13 @@ const YourComponent = () => {
         tableData.push([datas[i].toString(), p_s[i].toString(), p_d[i].toString(), bpms[i].toString(), arms[i]]);
       }
 
-      // Desenhe a tabela
+      
       for (let row = 0; row < tableData.length; row++) {
         for (let col = 0; col < numCols; col++) {
 
-          let fillColor = rgb(1, 1, 1); // Branco por padrão
+          let fillColor = rgb(1, 1, 1); 
           if (row > 0 && col == 1 && parseInt(tableData[row][col], 10) > 140) {
-            fillColor = rgb(255 / 255, 121 / 255, 0); // Laranja se a pressão sistólica for maior que 140
+            fillColor = rgb(255 / 255, 121 / 255, 0); 
           }
 
           if (row > 0 && col == 1 && parseInt(tableData[row][col], 10) == 140) {
@@ -288,7 +297,7 @@ const YourComponent = () => {
           }
 
           if (row > 0 && col == 2 && parseInt(tableData[row][col], 10) > 90) {
-            fillColor = rgb(255 / 255, 121 / 255, 0); // Laranja se a pressão diastólica for maior que 90
+            fillColor = rgb(255 / 255, 121 / 255, 0); 
           }
 
           if (row > 0 && col == 2 && parseInt(tableData[row][col], 10) == 90) {
@@ -296,7 +305,7 @@ const YourComponent = () => {
           }
 
           if (row > 0 && col == 3 && parseInt(tableData[row][col], 10) > 100) {
-            fillColor = rgb(255 / 255, 121 / 255, 0); // Laranja se o bpm for maior que 100
+            fillColor = rgb(255 / 255, 121 / 255, 0); 
           }
 
           if (row > 0 && col == 3 && parseInt(tableData[row][col], 10) == 100) {
@@ -315,7 +324,7 @@ const YourComponent = () => {
             color: rgb(0, 0, 0),
           });
 
-          // Desenhe a borda da célula
+          
           secondpage.drawRectangle({
             x: tableLeft + col * cellWidth,
             y: tableTop - row * cellHeight,
@@ -326,7 +335,7 @@ const YourComponent = () => {
             color: fillColor,
           });
 
-          // Adicione texto à célula
+          
           secondpage.drawText(tableData[row][col], {
             x: tableLeft + col * cellWidth + 5,
             y: tableTop - row * cellHeight + 5,
@@ -340,7 +349,7 @@ const YourComponent = () => {
             y: margin,
             width: width - 2 * margin,
             height: height - 2 * margin,
-            borderColor: rgb(255 / 255, 121 / 255, 0), // Cor laranja
+            borderColor: rgb(255 / 255, 121 / 255, 0), 
             borderWidth,
           });
         }
@@ -359,7 +368,6 @@ const YourComponent = () => {
       a.click();
       document.body.removeChild(a);
 
-      console.log("PDF gerado com sucesso!");
     } catch (error) {
       console.error('Erro ao gerar o PDF:', error);
     }
@@ -367,7 +375,29 @@ const YourComponent = () => {
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16 }} onStartShouldSetResponder={true}>
-      <Button title="Generate PDF" onPress={generatePDF} />
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20}}>
+      <View style={{ flexDirection: 'row'}}>
+        <Text style={{ fontWeight: 'bold', fontSize: 18}}>Select Period:</Text>
+        <Picker
+          selectedValue={selectedOption}
+          onValueChange={(itemValue) => setSelectedOption(itemValue)}
+          style={{ width: '80%',}}
+          itemStyle={{ fontSize: 18 }}
+        >
+          <Picker.Item label="All data" value="all" />
+          <Picker.Item label="Last 7 days" value="7" />
+          <Picker.Item label="Last 15 days" value="15" />
+          <Picker.Item label="Last 30 days" value="30" />
+        </Picker>
+      </View>
+      
+      
+      <Pressable 
+        onPress={generatePDF} 
+        style={pdfButton}>
+        <Text style={buttonText}>Generate PDF</Text>
+      </Pressable>
+      </View>
       <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 4, marginTop: 4 }}>Systolic Pressure:</Text>
       <View style={{ alignItems: 'center' }}>
         <LineChart
@@ -693,6 +723,20 @@ const radioSelected = {
 
 const radioLabel = {
   marginLeft: 8,
+};
+
+const pdfButton = {
+  backgroundColor: '#f97000',
+  padding: 8,
+  borderRadius: 5,
+  alignItems: 'center',
+  shadowColor: 'black',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.3,
+  shadowRadius: 2,
+  marginTop: 8,
+  marginBottom: 8,
+
 };
 
 export default YourComponent;
