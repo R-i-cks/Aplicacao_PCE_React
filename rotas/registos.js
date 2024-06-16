@@ -44,7 +44,6 @@ router.get('/:id', async(req, res)=> {
 router.put('/:id', async(req, res)=>{
     console.log(req.params)
     try {
-        console.log('Hello')
         const{id} = req.params;
         
         const registo = await Registo.findByIdAndUpdate(id, req.body);

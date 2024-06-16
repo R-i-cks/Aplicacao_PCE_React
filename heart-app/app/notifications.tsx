@@ -32,6 +32,16 @@ const Add_Notification_Input = () => {
     return true;
   };
 
+  const handleRemove = async (id) => {
+    try {
+      console.log('Tentei remover: '+ id)
+      await axios.delete(`http://localhost:5001/api/notificacoes/${id}`);
+      getData();
+    } catch (error) {
+      console.error('Erro ao remover notificacao:', error);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
@@ -108,6 +118,14 @@ const Add_Notification_Input = () => {
               <Text style={styles.text}>{format(new Date(item.data), 'yyyy-MM-dd')}</Text>
               <Text style={styles.titleData}>Description:</Text>
               <Text style={styles.text}>{item.texto}</Text>
+              <View style={{ alignItems: 'center' }}>
+                <Pressable
+                  style={styles.removeButton}
+                  onPress={() => handleRemove(item._id)}
+                >
+                  <Text style={styles.buttonText}>Remove</Text>
+                </Pressable>
+                </View>
             </View>
           )}
         />
@@ -174,6 +192,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 20,
+  },
+  removeButton: {
+    backgroundColor: '#f97000',
+    padding: 6,
+    borderRadius: 5,
+    alignItems: 'center',
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    marginLeft: 8,
   },
   radioContainer: {
     flexDirection: 'row',

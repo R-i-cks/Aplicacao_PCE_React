@@ -17,7 +17,8 @@ const Add_Measure_Input = () => {
   const [showAlert, setShowAlert] = React.useState(false);
   const [alertTitle, setAlertTitle] = React.useState('');
   const [alertMessage, setAlertMessage] = React.useState('');
-  
+  const [redirectPath, setRedirectPath] = React.useState('');
+
 
   const isValidInteger = (value) => {
     // Check if the value is a valid integer string
@@ -48,31 +49,21 @@ const Add_Measure_Input = () => {
     } else{
       arm_loc = 'at0026';
     }
-
+    let aviso = '';
     if (systolicValue > 140 && diastolicValue > 90) {
-      setAlertTitle('Warning');
-      setAlertMessage('High values for both pressures! Seek medical help!');
-      setShowAlert(true);
+      aviso = 'High values for both pressures! Seek medical help!';
     } else if (systolicValue > 140) {
-      setAlertTitle('Warning');
-      setAlertMessage('High systolic blood pressure! Seek medical help!');
-      setShowAlert(true);
+      aviso = 'High systolic blood pressure! Seek medical help!';
     } else if (diastolicValue > 90) {
-      setAlertTitle('Warning');
-      setAlertMessage('High diastolic blood pressure! Seek medical help!');
-      setShowAlert(true);
+      aviso = 'High diastolic blood pressure! Seek medical help!';
     }
     
     if (heart_rate < 60 || heart_rate > 100) {
-      setAlertTitle('Warning');
-      setAlertMessage('Heart rate is out of normal range! Seek medical help!');
-      setShowAlert(true);
+      aviso = 'Heart rate is out of normal range! Seek medical help!';
     }
     
     if (systolicValue < 90 || diastolicValue < 60) {
-      setAlertTitle('Warning');
-      setAlertMessage('Blood pressure is too low! Seek medical help!');
-      setShowAlert(true);
+      aviso = 'Blood pressure is too low! Seek medical help!';
     }
     
 
@@ -88,8 +79,10 @@ const Add_Measure_Input = () => {
       .then(response => {
         console.log('Resposta:', response.data);
         setAlertTitle('Sucess');
-        setAlertMessage('New measure entered sucessufully');
+        setAlertMessage(aviso + '\nNew measure entered sucessufully');
+        setRedirectPath('/history');
         setShowAlert(true);
+        
 
       })
       .catch(error => {
@@ -99,6 +92,13 @@ const Add_Measure_Input = () => {
         setShowAlert(true);
       });
   };
+
+  const handleAlertConfirm = () => {
+    setShowAlert(false);
+    // Example redirection logic: use a router or navigation library
+    window.location.href = redirectPath; // For browser apps
+    // Alternatively, use React Router's history.push or similar for SPA routing
+};
 
   return (
     <SafeAreaView style={styles.safearea}>
@@ -152,11 +152,11 @@ const Add_Measure_Input = () => {
         </Pressable>
       </View>
 
-      <Link href="/history" asChild>
+      
       <Pressable style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Submit</Text>
       </Pressable>
-      </Link>
+      
       
       <AwesomeAlert
         show={showAlert}
@@ -168,9 +168,7 @@ const Add_Measure_Input = () => {
         showConfirmButton={true}
         confirmText="OK"
         confirmButtonColor="#DD6B55"
-        onConfirmPressed={() => {
-          setShowAlert(false);
-        }}
+        onConfirmPressed={handleAlertConfirm}
       />
     </SafeAreaView>
   );
