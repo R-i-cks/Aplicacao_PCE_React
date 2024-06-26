@@ -1,6 +1,9 @@
 {
   "expo": {
     "name": "heart-app",
+    "experiments": {
+      "baseUrl": "/Aplicacao_PCE_React"
+    },
     "slug": "heart-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -31,6 +34,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "1ac6cae8-0296-40d0-8928-d0fefcc00a6d"
+      }
+    },
+    "owner": "ricarlojo"
   }
 }
