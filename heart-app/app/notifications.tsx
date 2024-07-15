@@ -35,7 +35,7 @@ const Add_Notification_Input = () => {
   const handleRemove = async (id) => {
     try {
       console.log('Tentei remover: '+ id)
-      await axios.delete(`http://localhost:5001/api/notificacoes/${id}`);
+      await axios.delete(`https://node-back-heartapp-5ce41f94a227.herokuapp.com/api/notificacoes/${id}`);
       getData();
     } catch (error) {
       console.error('Erro ao remover notificacao:', error);
@@ -53,7 +53,7 @@ const Add_Notification_Input = () => {
     };
 
     try {
-      const response = await axios.post('http://localhost:5001/api/notificacoes', nova_notificacao);
+      const response = await axios.post('https://node-back-heartapp-5ce41f94a227.herokuapp.com/api/notificacoes', nova_notificacao);
       console.log('Response:', response.data);
       // Atualiza os dados após a submissão bem-sucedida
       setAlertTitle('Sucess');
@@ -70,7 +70,7 @@ const Add_Notification_Input = () => {
 
   const getData = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/notificacoes');
+      const response = await axios.get('https://node-back-heartapp-5ce41f94a227.herokuapp.com/api/notificacoes');
       const sortedData = response.data.sort((a, b) => new Date(a.data) - new Date(b.data));
       setNotifications(sortedData);
     } catch (error) {

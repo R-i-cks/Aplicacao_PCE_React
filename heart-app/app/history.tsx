@@ -18,7 +18,7 @@ const YourComponent = () => {
 
   const getData = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/registos');
+      const response = await axios.get('https://node-back-heartapp-5ce41f94a227.herokuapp.com/api/registos');
       const sortedData = response.data.sort((a, b) => new Date(a.date_t) - new Date(b.date_t));
       let filteredData = [];
       if (selectedOption === 'all') {
@@ -37,7 +37,7 @@ const YourComponent = () => {
 
   const handleRemove = async (id) => {
     try {
-      await axios.delete(`http://localhost:5001/api/registos/${id}`);
+      await axios.delete(`https://node-back-heartapp-5ce41f94a227.herokuapp.com/api/registos/${id}`);
       getData();
     } catch (error) {
       console.error('Erro ao remover o registo:', error);
@@ -52,7 +52,7 @@ const YourComponent = () => {
 
   const handleSave = async (id) => {
     try {
-      await axios.put(`http://localhost:5001/api/registos/${id}`, editedFields);
+      await axios.put(`https://node-back-heartapp-5ce41f94a227.herokuapp.com/api/registos/${id}`, editedFields);
       getData();
       setEditingId(null);
       setEditedFields({});

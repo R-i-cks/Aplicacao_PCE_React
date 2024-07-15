@@ -75,7 +75,7 @@ const Add_Measure_Input = () => {
       at0014: arm_loc,
     };
 
-    axios.post('http://localhost:5001/api/registos', novo_registo)
+    axios.post('https://node-back-heartapp-5ce41f94a227.herokuapp.com/api/registos', novo_registo)
       .then(response => {
         console.log('Resposta:', response.data);
         setAlertTitle('Sucess');
