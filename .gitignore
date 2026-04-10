@@ -1,2 +1,29 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log
+.pnp
+.pnp.js
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build
+build/
+
+# Firebase credentials
 chave_c.json
-/home/utilizador/Uni/4_Ano/2_Semestre/PCE/TP/chave_c.json
